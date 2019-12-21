@@ -1,6 +1,7 @@
 require "nta_ruby/version"
 require "nta_ruby/connection"
 require "nta_ruby/response"
+require "nta_ruby/options"
 require "faraday"
 require "csv"
 require "time"
