@@ -22,9 +22,9 @@ module NtaRuby
       case type
       when :number
         corporate_number = option[:number]
-        history = option[:history]
+        history = option[:history] === true ? 1 : 0
 
-        raw_resp = conn.get "#{version}/num", { id: id, number: corporate_number, type: '02', history: (history || 0) }
+        raw_resp = conn.get "#{version}/num", { id: id, number: corporate_number, type: '02', history: history }
         result, divide_size = NtaRuby::Response.parse(raw_resp)
 
         response.concat result
