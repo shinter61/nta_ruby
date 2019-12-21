@@ -31,14 +31,30 @@ module NtaRuby
       en_address_outside
       furigana
       hihyoji
-    ]
+    ].freeze
 
     HEADER_COLUMN = %w[
       last_update_date
       count
       divide_number
       divide_size
-    ]
+    ].freeze
+
+    TIME_COLUMN = %w[
+      update_date
+      change_date
+      close_date
+      assignment_date
+      last_update_date
+    ].freeze
+
+    INTEGER_COLUMN = %w[
+      sequence_number
+      corporate_number
+      count
+      divide_number
+      divide_size
+    ].freeze
 
     attr_accessor *RAW_RESPONSE_COLUMN
     attr_accessor *HEADER_COLUMN
@@ -57,10 +73,16 @@ module NtaRuby
 
     def initialize(column, csv_header)
       RAW_RESPONSE_COLUMN.each_with_index do |attr, idx|
-        send("#{attr}=", column[idx])
+        target_val = column[idx]
+        target_val = target_val.to_i if INTEGER_COLUMN.include?(attr) && target_val
+        target_val = Time.parse(target_val) if TIME_COLUMN.include?(attr) && target_val
+        send("#{attr}=", target_val)
       end
       HEADER_COLUMN.each_with_index do |attr, idx|
-        send("#{attr}=", csv_header[idx])
+        target_val = csv_header[idx]
+        target_val = target_val.to_i if INTEGER_COLUMN.include?(attr) && target_val
+        target_val = Time.parse(target_val) if TIME_COLUMN.include?(attr) && target_val
+        send("#{attr}=",target_val)
       end
     end
   end

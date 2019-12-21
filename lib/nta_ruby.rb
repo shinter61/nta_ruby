@@ -3,6 +3,7 @@ require "nta_ruby/connection"
 require "nta_ruby/response"
 require "faraday"
 require "csv"
+require "time"
 
 module NtaRuby
   class << self
