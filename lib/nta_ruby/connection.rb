@@ -18,21 +18,18 @@ module NtaRuby
     def throw_request(type:, divide:, **option)
       raise ConnectionNotFoundError.new unless conn
 
+      search_condition = Options.new(type: type, **option).to_h
+      search_condition.merge!({ id: id })
+
       response = []
       case type
       when :number
-        corporate_number = option[:number]
-        history = option[:history] === true ? 1 : 0
-
-        raw_resp = conn.get "#{version}/num", { id: id, number: corporate_number, type: '02', history: history }
+        raw_resp = conn.get "#{version}/num", search_condition
         result, _ = NtaRuby::Response.parse(raw_resp)
 
         response.concat result
       when :diff
-        from = option[:from].strftime('%Y-%m-%d')
-        to = option[:to].strftime('%Y-%m-%d')
-
-        raw_resp = conn.get "#{version}/diff", { id: id, from: from, to: to, divide: (divide || 1), type: '02' }
+        raw_resp = conn.get "#{version}/diff", search_condition
         result, divide_size = NtaRuby::Response.parse(raw_resp)
 
         response.concat result
@@ -42,12 +39,27 @@ module NtaRuby
         (1..divide_size).each do |divide_number|
           next if divide_number == 1
 
-          raw_resp = conn.get "#{version}/diff", { id: id, from: from, to: to, divide: divide_number, type: '02' }
+          raw_resp = conn.get "#{version}/diff", search_condition.merge({ divide: divide_number })
           result, _ = NtaRuby::Response.parse(raw_resp)
 
           response.concat result
         end
       when :name
+        raw_resp = conn.get "#{version}/name", search_condition
+        result, divide_size = NtaRuby::Response.parse(raw_resp)
+
+        response.concat result
+
+        return response if divide.is_a? Integer
+
+        (1..divide_size).each do |divide_number|
+          next if divide_number == 1
+
+          raw_resp = conn.get "#{version}/name", search_condition.merge({ divide: divide_number })
+          result, _ = NtaRuby::Response.parse(raw_resp)
+
+          response.concat result
+        end
       else
         raise InvalidRequestTypeError.new
       end

@@ -1,26 +1,24 @@
 # NtaRuby
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/nta_ruby`. To experiment with that code, run `bin/console` for an interactive prompt.
+国税庁APIで企業情報を取得するためのgemです。各種情報がobjectとして扱えるようになります。
 
-TODO: Delete this and the text above, and describe your gem
+## インストール
 
-## Installation
-
-Add this line to your application's Gemfile:
+この行をgemfileに追記して、
 
 ```ruby
 gem 'nta_ruby'
 ```
 
-And then execute:
+これを実行してください。
 
     $ bundle
 
-Or install it yourself as:
+もしくは、以下のコマンドをシェルから実行してください。
 
     $ gem install nta_ruby
 
-## Usage
+## 使用法
 
 国税庁へのAPIのリクエストを送りたいファイルで、まずこの行を追加し、国税庁とのネットワークを確立してください。
 
@@ -61,6 +59,16 @@ resp = conn.throw_request(type: :diff, divide: 2, from: Time.zone.local(2019, 9,
 resp.size # => 2000
 resp.first.name # => '株式会社○△□'
 ```
+
+### 名称検索
+
+名前が「test」のもので検索したい場合(前方一致)
+```ruby
+resp = conn.throw_request(type: :name, divide: false, history: true, mode: 1)
+resp.size # => 600
+resp.first.name # => 'test株式会社'
+```
+
 
 ## Development
 
