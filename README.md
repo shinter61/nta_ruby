@@ -41,15 +41,26 @@ resp.first.name # => '株式会社○△□'
 法人番号が「1111111111111」のもので検索したい場合
 ```ruby
 resp = conn.throw_request(type: :number, divide: false, number: 1111111111111)
+resp.size # => 1
 resp.first.name # => '株式会社○△□'
 ```
 
 法人番号が「1111111111111」のもので検索したい場合(履歴付き)
 ```ruby
 resp = conn.throw_request(type: :number, divide: false, number: 1111111111111, history: true)
+resp.size # => 3
 resp.first.name # => '株式会社○△□'
+resp[1].name # => '株式会社×××'
 ```
 
+### 期間検索
+
+2019年9月1日から2019年10月1日の間に更新されたもので検索したい場合
+```ruby
+resp = conn.throw_request(type: :diff, divide: 2, from: Time.zone.local(2019, 9, 1), to: Time.zone.local(2019, 10, 1))
+resp.size # => 2000
+resp.first.name # => '株式会社○△□'
+```
 
 ## Development
 

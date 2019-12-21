@@ -25,7 +25,7 @@ module NtaRuby
         history = option[:history] === true ? 1 : 0
 
         raw_resp = conn.get "#{version}/num", { id: id, number: corporate_number, type: '02', history: history }
-        result, divide_size = NtaRuby::Response.parse(raw_resp)
+        result, _ = NtaRuby::Response.parse(raw_resp)
 
         response.concat result
       when :diff
