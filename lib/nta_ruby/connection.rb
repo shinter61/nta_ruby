@@ -29,8 +29,8 @@ module NtaRuby
 
         response.concat result
       when :diff
-        from = option[:from].strftime('%Y-%m-%d')
-        to = option[:to].strftime('%Y-%m-%d')
+        from = option[:from]&.strftime('%Y-%m-%d')
+        to = option[:to]&.strftime('%Y-%m-%d')
 
         raw_resp = conn.get "#{version}/diff", { id: id, from: from, to: to, divide: (divide || 1), type: '02' }
         result, divide_size = NtaRuby::Response.parse(raw_resp)
@@ -48,6 +48,30 @@ module NtaRuby
           response.concat result
         end
       when :name
+        name = option[:name]
+        mode = option[:mode]
+        target = option[:target]
+        kind = option[:kind]
+        change = option[:history] === true ? 1 : 0
+        close = option[:close] === true ? 1 : 0
+        from = option[:from]&.strftime('%Y-%m-%d')
+        to = option[:to]&.strftime('%Y-%m-%d')
+
+        raw_resp = conn.get "#{version}/name", { id: id, name: name, mode: mode, kind: kind, change: change, close: close, from: from, to: to, divide: (divide || 1), type: '02' }
+        result, divide_size = NtaRuby::Response.parse(raw_resp)
+
+        response.concat result
+
+        return response if divide.is_a? Integer
+
+        (1..divide_size).each do |divide_number|
+          next if divide_number == 1
+
+          raw_resp = conn.get "#{version}/name", { id: id, name: name, mode: mode, kind: kind, change: change, close: close, from: from, to: to, divide: divide_number, type: '02' }
+          result, _ = NtaRuby::Response.parse(raw_resp)
+
+          response.concat result
+        end
       else
         raise InvalidRequestTypeError.new
       end
