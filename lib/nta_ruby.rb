@@ -1,6 +1,8 @@
 require "nta_ruby/version"
 require "nta_ruby/connection"
+require "nta_ruby/response"
 require "faraday"
+require "csv"
 
 module NtaRuby
   class << self
