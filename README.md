@@ -22,7 +22,19 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+国税庁へのAPIのリクエストを送りたいファイルで、まずこの行を追加し、国税庁とのネットワークを確立してください。
+
+```ruby
+# AAAAAAAA: あなたの国税庁APIの認証ID
+# 4: 利用したい国税庁APIのバージョン
+conn = NtaRuby.new(id: 'AAAAAAAAA', version: 4)
+```
+
+接続できたら、検索条件を指定するとそれに応じたレスポンスが加工されて返却されます。
+```ruby
+resp = conn.throw_request(type: :diff, divide: 2, from: Time.zone.local(2019, 9, 1), to: Time.zone.local(2019, 10, 1))
+resp.first.name # => '株式会社○△□'
+```
 
 ## Development
 
