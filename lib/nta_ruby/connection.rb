@@ -1,6 +1,6 @@
 module NtaRuby
-  class ConnectionNotFoundError < StandardError
-  end
+  class ConnectionNotFoundError < StandardError; end
+  class InvalidRequestTypeError < StandardError; end
 
   class Connection
     attr_reader :conn, :id, :version
@@ -21,11 +21,18 @@ module NtaRuby
       response = []
       case type
       when :number
+        corporate_number = option[:number]
+        history = option[:history] === true ? 1 : 0
+
+        raw_resp = conn.get "#{version}/num", { id: id, number: corporate_number, type: '02', history: history }
+        result, _ = NtaRuby::Response.parse(raw_resp)
+
+        response.concat result
       when :diff
         from = option[:from].strftime('%Y-%m-%d')
         to = option[:to].strftime('%Y-%m-%d')
 
-        raw_resp = conn.get "#{version}/#{type.to_s}", { id: id, from: from, to: to, divide: (divide || 1), type: '02' }
+        raw_resp = conn.get "#{version}/diff", { id: id, from: from, to: to, divide: (divide || 1), type: '02' }
         result, divide_size = NtaRuby::Response.parse(raw_resp)
 
         response.concat result
@@ -35,13 +42,14 @@ module NtaRuby
         (1..divide_size).each do |divide_number|
           next if divide_number == 1
 
-          raw_resp = conn.get "#{version}/#{type.to_s}", { id: id, from: from, to: to, divide: divide_number, type: '02' }
+          raw_resp = conn.get "#{version}/diff", { id: id, from: from, to: to, divide: divide_number, type: '02' }
           result, _ = NtaRuby::Response.parse(raw_resp)
 
           response.concat result
         end
       when :name
       else
+        raise InvalidRequestTypeError.new
       end
 
       response
